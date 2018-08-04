@@ -45,7 +45,8 @@ case class BotMessage (
   channel: String,
   text: String,
   bot_id: String,
-  username: Option[String]
+  username: Option[String],
+  attachments: Option[Seq[Attachment]]
 ) extends SlackEvent
 
 // TODO: Message Sub-types
@@ -90,7 +91,7 @@ case class ReactionAdded (
   item: ReactionItem,
   event_ts: String,
   user: String,
-  item_user: String
+  item_user: Option[String]
 ) extends SlackEvent
 
 case class ReactionRemoved (
@@ -98,7 +99,7 @@ case class ReactionRemoved (
   item: ReactionItem,
   event_ts: String,
   user: String,
-  item_user: String
+  item_user: Option[String]
 ) extends SlackEvent
 
 case class UserTyping (
@@ -402,4 +403,23 @@ case class DesktopNotification(
   imageUrl: Option[String],
   is_shared: Boolean,
   event_ts: String
+) extends SlackEvent
+
+case class DndUpdatedUser(
+ `type`: String,
+ user: String,
+ dnd_status: DndStatus,
+ event_ts: String
+) extends SlackEvent
+
+case class DndStatus(
+ dnd_enabled: Boolean,
+ next_dnd_start_ts: Long,
+ next_dnd_end_ts: Long
+)
+
+case class MemberJoined(
+ user: String,
+ channel: String,
+ inviter: Option[String]
 ) extends SlackEvent

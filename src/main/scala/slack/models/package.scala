@@ -47,6 +47,29 @@ package object models {
       case i:ReactionItemFileComment => Json.toJson(i)
     }
   }
+  implicit val optionElementFmt = Json.format[OptionElement]
+  implicit val selectElementFmt = Json.format[SelectElement]
+  implicit val textElementFmt = Json.format[TextElement]
+  implicit val dialogElementReads = new Reads[DialogElement] {
+    def reads(json: JsValue): JsResult[DialogElement] = {
+      val rType = (json \ "type").asOpt[String]
+      if (rType.isDefined) {
+        rType.get match {
+          case "select" => JsSuccess(json.as[SelectElement])
+          case _ => JsSuccess(json.as[TextElement])
+        }
+      } else {
+        JsError(JsonValidationError("Required property: [type] is missing."))
+      }
+    }
+  }
+  implicit val dialogElementWrites = new Writes[DialogElement] {
+    override def writes(element: DialogElement): JsValue = element match {
+      case e:TextElement => Json.toJson(e)
+      case e:SelectElement => Json.toJson(e)
+    }
+  }
+  implicit val dialogFmt = Json.format[Dialog]
 
   // Event Formats
   implicit val helloFmt = Json.format[Hello]
@@ -119,6 +142,9 @@ package object models {
   implicit val appsUninstalledFmt = Json.format[AppsUninstalled]
   implicit val appsInstalledFmt = Json.format[AppsInstalled]
   implicit val desktopNotificationFmt = Json.format[DesktopNotification]
+  implicit val dndStatusFmt = Json.format[DndStatus]
+  implicit val dndUpdateUserFmt = Json.format[DndUpdatedUser]
+  implicit val memberJoined = Json.format[MemberJoined]
 
   // Message sub-types
   import MessageSubtypes._
@@ -217,6 +243,8 @@ package object models {
         case e: AppsUninstalled => Json.toJson(e)
         case e: AppsInstalled => Json.toJson(e)
         case e: DesktopNotification => Json.toJson(e)
+        case e: DndUpdatedUser => Json.toJson(e)
+        case e: MemberJoined => Json.toJson(e)
       }
     }
   }
@@ -322,6 +350,8 @@ package object models {
           case "apps_uninstalled" => JsSuccess(jsValue.as[AppsUninstalled])
           case "apps_installed" => JsSuccess(jsValue.as[AppsInstalled])
           case "desktop_notification" => JsSuccess(jsValue.as[DesktopNotification])
+          case "dnd_updated_user" => JsSuccess(jsValue.as[DndUpdatedUser])
+          case "member_joined_channel" => JsSuccess(jsValue.as[MemberJoined])
           case t: String => JsError(JsonValidationError("Invalid type property: {}", t))
         }
       } else if ((jsValue \ "reply_to").asOpt[Long].isDefined) {

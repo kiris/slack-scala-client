@@ -1,17 +1,15 @@
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
+import akka.actor.ActorSystem
+import org.scalatest.{FunSuite, Matchers}
 import slack.api.SlackApiClient
 import slack.models.Reply
 import slack.rtm.SlackRtmClient
 
-import scala.concurrent.{ Await, Promise }
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Promise}
 
-import org.scalatest.FunSuite
-import akka.actor.ActorSystem
-
-class SlackRtmClientTest extends FunSuite {
+class SlackRtmClientTest extends FunSuite with Matchers {
 
   implicit val system = ActorSystem("slack")
 
@@ -30,8 +28,8 @@ class SlackRtmClientTest extends FunSuite {
   test("team domain") {
     val domain = rtmClient.state.team.domain
     val name = rtmClient.state.team.name
-    assert(domain.equals(system.settings.config.getString("test.team.domain")))
-    assert(name.equals(system.settings.config.getString("test.team.name")))
+    domain should be (system.settings.config.getString("test.team.domain"))
+    name should be (system.settings.config.getString("test.team.name"))
   }
 
   test("send message and parse reply") {
