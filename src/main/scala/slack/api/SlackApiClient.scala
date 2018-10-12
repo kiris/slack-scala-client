@@ -621,6 +621,14 @@ class SlackApiClient(token: String) {
   }
 
 
+  /********************************/
+  /****  User Group Endpoints  ****/
+  /********************************/
+  def listUserGroupUsers(userGroupId: String)(implicit system: ActorSystem): Future[Seq[String]] = {
+    val res = makeApiMethodRequest("usergroups.users.list")
+    extract[Seq[String]](res, "users")
+  }
+
   /*****************************/
   /****  Private Functions  ****/
   /*****************************/
